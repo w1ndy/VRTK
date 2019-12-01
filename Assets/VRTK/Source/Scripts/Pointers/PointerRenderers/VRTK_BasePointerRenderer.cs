@@ -374,7 +374,13 @@ namespace VRTK
             VRTK_ControllerReference controllerReference = GetControllerReference((controllingPointer != null ? controllingPointer.attachedTo : null));
             if (VRTK_ControllerReference.IsValid(controllerReference) && (cachedAttachedHand != controllerReference.hand || cachedPointerAttachPoint == null))
             {
-                cachedPointerAttachPoint = controllerReference.model.transform.Find(VRTK_SDK_Bridge.GetControllerElementPath(SDK_BaseController.ControllerElements.AttachPoint, controllerReference.hand));
+                string elementPath = VRTK_SDK_Bridge.GetControllerElementPath(SDK_BaseController.ControllerElements.AttachPoint, controllerReference.hand);
+                if (elementPath == null)
+                {
+                    return null;
+                }
+
+                cachedPointerAttachPoint = controllerReference.model.transform.Find(elementPath);
                 cachedAttachedHand = controllerReference.hand;
                 pointerOriginTransformFollow.gameObject.SetActive(false);
             }
@@ -383,10 +389,12 @@ namespace VRTK
 
         protected virtual void UpdatePointerOriginTransformFollow()
         {
-            pointerOriginTransformFollow.gameObject.SetActive((controllingPointer != null));
-            if (controllingPointer != null)
+            Transform pointerOriginTransform = controllingPointer.customOrigin == null ? GetPointerOriginTransform() : controllingPointer.customOrigin;
+
+            pointerOriginTransformFollow.gameObject.SetActive((controllingPointer != null && pointerOriginTransform != null));
+            if (controllingPointer != null && pointerOriginTransform != null)
             {
-                pointerOriginTransformFollow.gameObjectToFollow = (controllingPointer.customOrigin == null ? GetPointerOriginTransform() : controllingPointer.customOrigin).gameObject;
+                pointerOriginTransformFollow.gameObjectToFollow = pointerOriginTransform.gameObject;
                 pointerOriginTransformFollow.enabled = controllingPointer != null;
                 pointerOriginTransformFollowGameObject.SetActive(controllingPointer != null);
 

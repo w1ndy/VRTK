@@ -345,6 +345,12 @@ namespace VRTK
                 //attempt to find the attach point on the controller
                 SDK_BaseController.ControllerHand handType = VRTK_DeviceFinder.GetControllerHand(interactTouch.gameObject);
                 string elementPath = VRTK_SDK_Bridge.GetControllerElementPath(SDK_BaseController.ControllerElements.AttachPoint, handType);
+
+                if (elementPath == null)
+                {
+                    return;
+                }
+
                 Transform defaultAttachPoint = controllerReference.model.transform.Find(elementPath);
 
                 if (defaultAttachPoint != null)
